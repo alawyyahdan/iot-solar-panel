@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Connection Test</title>
+    <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .log {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .connecting { background: #f59e0b; }
+        .connected { background: #10b981; }
+        .error { background: #ef4444; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 MQTT Connection Test</h1>
+    
+    <div id="status" class="status connecting">Initializing...</div>
+    
+    <div>
+        <button onclick="testConnection()">Test Connection</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div id="log" class="log"></div>
+
+    <script>
+        let client = null;
+        let logElement = document.getElementById('log');
+        let statusElement = document.getElementById('status');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            console.log(logMessage);
+            logElement.innerHTML += logMessage + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function updateStatus(status, message) {
+            statusElement.className = `status ${status}`;
+            statusElement.textContent = message;
+        }
+        
+        function clearLog() {
+            logElement.innerHTML = '';
+        }
+        
+        function testConnection() {
+            log('🔄 Starting MQTT connection test...');
+            updateStatus('connecting', 'Testing connection...');
+            
+            // Disconnect existing client
+            if (client) {
+                log('🔌 Disconnecting existing client...');
+                client.end(true);
+            }
+            
+            const config = {
+                broker: 'mqtt.adan.lat',
+                port: 9001,
+                clientId: 'test_' + Math.random().toString(16).substr(2, 8),
+                username: 'webtugas',
+                password: 'webtugas'
+            };
+            
+            log(`🌐 Connecting to: ws://${config.broker}:${config.port}`);
+            log(`👤 Username: ${config.username}`);
+            log(`🆔 Client ID: ${config.clientId}`);
+            
+            try {
+                const clientUrl = `ws://${config.broker}:${config.port}`;
+                
+                client = mqtt.connect(clientUrl, {
+                    clientId: config.clientId,
+                    username: config.username,
+                    password: config.password,
+                    keepalive: 30,
+                    clean: true,
+                    reconnectPeriod: 0,
+                    connectTimeout: 10000,
+                    protocolVersion: 4
+                });
+                
+                // Set timeout for connection
+                const timeout = setTimeout(() => {
+                    log('⏰ Connection timeout after 10 seconds');
+                    updateStatus('error', 'Connection timeout');
+                    if (client) {
+                        client.end(true);
+                    }
+                }, 10000);
+                
+                client.on('connect', function(connack) {
+                    clearTimeout(timeout);
+                    log('✅ Successfully connected to MQTT broker!');
+                    log('📋 Connection acknowledgment: ' + JSON.stringify(connack));
+                    updateStatus('connected', 'Connected successfully!');
+                    
+                    // Test subscription
+                    const testTopic = 'solar/servo';
+                    log(`📡 Testing subscription to: ${testTopic}`);
+                    
+                    client.subscribe(testTopic, function(err) {
+                        if (!err) {
+                            log(`✅ Successfully subscribed to: ${testTopic}`);
+                        } else {
+                            log(`❌ Failed to subscribe: ${err.message}`);
+                        }
+                    });
+                });
+                
+                client.on('message', function(topic, message) {
+                    log(`📨 Received message on ${topic}: ${message.toString()}`);
+                });
+                
+                client.on('error', function(error) {
+                    clearTimeout(timeout);
+                    log(`❌ Connection error: ${error.message}`);
+                    log(`🔍 Error details: ${JSON.stringify(error)}`);
+                    updateStatus('error', 'Connection failed: ' + error.message);
+                });
+                
+                client.on('close', function() {
+                    log('🔌 Connection closed');
+                });
+                
+                client.on('offline', function() {
+                    log('📴 Client went offline');
+                });
+                
+            } catch (error) {
+                log(`💥 Exception during connection: ${error.message}`);
+                updateStatus('error', 'Exception: ' + error.message);
+            }
+        }
+        
+        // Check if MQTT library is available
+        if (typeof mqtt !== 'undefined') {
+            log('✅ MQTT.js library loaded successfully');
+            log('🔗 MQTT version: ' + (mqtt.VERSION || 'Unknown'));
+            updateStatus('connecting', 'Ready to test');
+        } else {
+            log('❌ MQTT.js library not available');
+            updateStatus('error', 'MQTT library not loaded');
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,180 @@
+html {
+  background: #1E1423;
+}
+
+.hidden, #window {
+/*   display: none; */
+}
+
+.bird-body, .bird-wing {
+  fill:#2d113f;
+}
+
+/* Status Panel Styling */
+#status-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  font-family: 'Arial', sans-serif;
+  max-width: 300px;
+}
+
+
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-panel {
+  background: rgba(30, 20, 35, 0.95);
+  border: 2px solid #333;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 15px;
+  color: white;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.sensor-data h3 {
+  margin: 0 0 15px 0;
+  color: #ffd700;
+  font-size: 16px;
+  text-align: center;
+  border-bottom: 1px solid #444;
+  padding-bottom: 8px;
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 5px 0;
+}
+
+.data-row span:first-child {
+  color: #ccc;
+  font-weight: 500;
+}
+
+.data-row span:last-child {
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Status Colors */
+.bright {
+  background: #4CAF50;
+  color: white;
+}
+
+.dark {
+  background: #424242;
+  color: #ccc;
+}
+
+.raining {
+  background: #2196F3;
+  color: white;
+}
+
+.clear {
+  background: #FFC107;
+  color: black;
+}
+
+.drizzle {
+  background: #87CEEB;
+  color: black;
+}
+
+.storm {
+  background: #1565C0;
+  color: white;
+  animation: pulse 1s infinite;
+}
+
+.active {
+  background: #FF5722;
+  color: white;
+}
+
+.inactive {
+  background: #9E9E9E;
+  color: white;
+}
+
+.unknown {
+  background: #666;
+  color: #ccc;
+}
+
+/* Connection Status Box in Popup */
+.connection-status-box {
+  background: white;
+  color: #333;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.connection-status-box .status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.connection-status-box .status-dot.connecting {
+  background: #ff9800;
+  animation: pulse 1.5s infinite;
+}
+
+.connection-status-box .status-dot.connected {
+  background: #4caf50;
+}
+
+.connection-status-box .status-dot.disconnected {
+  background: #f44336;
+}
+
+.connection-status-box .status-dot.error {
+  background: #ff5722;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #status-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .status-panel {
+    font-size: 12px;
+  }
+  
+  .sensor-data h3 {
+    font-size: 14px;
+  }
+}
